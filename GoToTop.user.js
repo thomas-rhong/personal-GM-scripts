@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name         网页回到顶部
 // @namespace    https://github.com/THR-hub/personal-GM-scripts
-// @version      0.1.8
+// @version      0.1.9
 // @description  在网页右边增加回到顶部的按钮。Chrome默认始终显示滚动条，显示位置相比Firefox偏左。
 // @author       T_H_R
 // @match        *://*/*
-// @exclude      *://profiler.firefox.com/*
 // @exclude      *://web.telegram.org/*
 // @noframes
 // @grant        GM_addStyle
@@ -13,6 +12,8 @@
 // ==/UserScript==
 
 'use strict';
+
+if (Object.keys(document.getElementById('root') ?? document.body).some(key => key.startsWith('__react'))) return;
 
 GM_addStyle(`@media(prefers-color-scheme:light){.GM_btn_c{background-color:#f7f7f7 !important;color:black !important;}}
 @media(prefers-color-scheme:dark){.GM_btn_c{background-color:#333 !important;color:white !important;}}`);
