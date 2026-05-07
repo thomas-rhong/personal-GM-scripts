@@ -18,7 +18,8 @@ function addStyle(style) {
 
 (function () {
     clearTitles();
-    createObserver();
+    clearHighlightLink();
+    oldStyleSurpriseSticker();
     // see https://www.zhihu.com/question/554983886/answer/2687877961
     addStyle(`@-moz-document url-prefix(){body{overflow-anchor:none}}`);
 })();
@@ -33,7 +34,7 @@ function clearTitles() { // 去除标题消息提示
 
 }
 
-function createObserver() { // 将重复监听操作合并
+function clearHighlightLink() { // 去除相关搜索
 
     function replace(selector, callback) {
         //let all = Array.from(document.getElementsByClassName(selector));
@@ -45,22 +46,37 @@ function createObserver() { // 将重复监听操作合并
         observer.disconnect();
         //console.log('DOM Changed');
 
-        // 去除相关搜索
         replace('.RichContent-EntityWord', (e) => // 高亮有三种情况：下划线、下划线+段首、非下划线，下划线在段首时firstChild是空白文本
             e.parentElement.outerHTML = e.firstChild.nodeValue || e.firstElementChild.outerHTML);
-
-        // 替换[惊喜]表情为旧版
-        replace('.sticker', (e) => {
-            switch (e.alt) { // 用GM_webRequest替换`https://unpkg.zhimg.com/@cfe/emoticon@1.5.0/lib/emoticon.js`更方便，但只有Tampermonkey+Firefox支持
-                case '[惊喜]':
-                    e.src = 'https://pic1.zhimg.com/v2-3846906ea3ded1fabbf1a98c891527fb.png'; break;
-                case '[哇]':
-                    e.src = 'https://pic1.zhimg.com/v2-70c38b608df613d862ee0140dcb26465.png';
-            }
-        });
 
         observer.observe(document.body, { childList: true, subtree: true, attributes: false });
     });
     observer.observe(document.body, { childList: true, subtree: true, attributes: false });
+
+}
+
+function oldStyleSurpriseSticker() { // 替换[惊喜]表情为旧版
+
+    const redef = () => {
+        [['惊喜', 'https://pic1.zhimg.com/v2-3846906ea3ded1fabbf1a98c891527fb.png'],
+        ['哇', 'https://pic1.zhimg.com/v2-70c38b608df613d862ee0140dcb26465.png']].forEach((arr) => {
+            window.zh_emoticon.find(obj => obj.title === '默认').stickers.find(obj => obj.title === arr[0]).static_image_url = arr[1];
+        });
+    }
+
+    function wait_for_var(obj, variable) {
+
+        return new Promise(resolve => {
+            let real_val;
+            Object.defineProperty(obj, variable, {
+                get() { return real_val; },
+                set(val) { real_val = val; resolve(); }
+            });
+        });
+
+    };
+
+    if (typeof window.zh_emoticon !== 'undefined') redef();
+    else wait_for_var(window, 'zh_emoticon').then(redef);
 
 }
