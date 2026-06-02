@@ -5,7 +5,7 @@
 // @description  在网页右边增加回到顶部的按钮。
 // @author       T_H_R
 // @match        *://*/*
-// @exclude      *://web.telegram.org/*
+// @exclude      *://profiler.firefox.com/*
 // @noframes
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
@@ -36,16 +36,17 @@ function hideButton() {
 
 
 const scroll_to = (height) => {
+  // react等网页可能会将document.scrollingElement保持为html但overflow为hidden，真正的滚动条在某个div上
   const targets = Array.from(document.querySelectorAll('html,main,div'))
     .filter(el => el.clientHeight < el.scrollHeight)
     .filter(el => {
       let overflow = getComputedStyle(el).overflowY;
       if (el !== document.documentElement)
         return ['auto', 'scroll'].includes(overflow);
-      else
+      else // html的overflow为visible时有滚动条
         return ['auto', 'scroll', 'visible'].includes(overflow);
     });
-  const target = (targets.length === 0) ? document.scrollingElement : targets.reduce((max, el) => max.clientWidth > el.clientWidth ? max : el);
+  const target = (targets.length === 0) ? document.scrollingElement : targets.reduce((max, el) => max.clientWidth > el.clientWidth ? max : el); // 选择最宽的容器
   target.scrollTo({ top: { top: 0, bottom: target.scrollHeight }[height], behavior: 'smooth' });
 }
 
