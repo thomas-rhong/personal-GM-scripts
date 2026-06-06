@@ -8,6 +8,7 @@
 // @exclude      *://profiler.firefox.com/*
 // @noframes
 // @grant        GM_addStyle
+// @grant        GM_addElement
 // @grant        GM_registerMenuCommand
 // ==/UserScript==
 
@@ -50,25 +51,8 @@ const scroll_to = (height) => {
   target.scrollTo({ top: { top: 0, bottom: target.scrollHeight }[height], behavior: 'smooth' });
 }
 
-
-const btn_p=document.createElement('div');
-btn_p.id='GM_btn_p';
-btn_p.lang='zh-Hans-CN';
-
-
-const btn_1=document.createElement('div');
-btn_1.className='GM_btn_c';
-btn_1.innerHTML='回到顶部';
-btn_1.role='button';
-btn_1.onclick=()=>scroll_to('top');
-
-const btn_2=document.createElement('div');
-btn_2.id='GM_btn_2';
-btn_2.className='GM_btn_c';
-btn_2.innerHTML='去往底部';
-btn_2.role='button';
-btn_2.onclick=()=>scroll_to('bottom');
-
-btn_p.appendChild(btn_2);
-btn_p.appendChild(btn_1);
-document.body.appendChild(btn_p);
+const btn_p = GM_addElement(document.body, 'div', { id: 'GM_btn_p', lang: 'zh-Hans-CN' });
+GM_addElement(btn_p, 'div', { id: 'GM_btn_2', className: 'GM_btn_c', textContent: '去往底部', role: 'button' })
+  .onclick = () => scroll_to('bottom');
+GM_addElement(btn_p, 'div', { className: 'GM_btn_c', textContent: '回到顶部', role: 'button' })
+  .onclick = () => scroll_to('top');
