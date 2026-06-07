@@ -7,8 +7,6 @@
 // @match        *://*/*
 // @exclude      *://profiler.firefox.com/*
 // @noframes
-// @grant        GM_addStyle
-// @grant        GM_addElement
 // @grant        GM_registerMenuCommand
 // ==/UserScript==
 
@@ -21,11 +19,29 @@
 //     Array.from(document.body.childNodes).some((node) => node.id === 'root')) return;
 // }
 
-GM_addStyle(`@media(prefers-color-scheme:light){.GM_btn_c{background-color:#f7f7f7 !important;color:black !important;}}
-@media(prefers-color-scheme:dark){.GM_btn_c{background-color:#333 !important;color:white !important;}}`);
+/**
+ * @param {string} css
+ * @returns {HTMLStyleElement}
+ */
+const addStyle = (css) =>
+  addElement(document.head, 'style', { type: 'text/css', textContent: css });
 
-GM_addStyle(`#GM_btn_p{all:initial;font-size:12px !important;position:fixed;bottom:20%;right:max(0px, (1em - 100vw + 100%));z-index:1000}
-.GM_btn_c{display:inline-block;block-size:auto !important;border:.1em solid grey;border-radius:.3em;padding:.3em;position:relative;
+/**
+ * Similar (but not the same) to GM_addElement
+ * @param {HTMLElement} parent
+ * @param {string} element
+ * @param {object} prop
+ * @returns {HTMLElement}
+ */
+const addElement = (parent, element, prop) =>
+  parent.appendChild(Object.assign(document.createElement(element), prop));
+
+
+addStyle(`@media(prefers-color-scheme:light){.GM_btn_c{background-color:#f7f7f7!important;color:black!important;}}
+@media(prefers-color-scheme:dark){.GM_btn_c{background-color:#333!important;color:white!important;}}`);
+
+addStyle(`#GM_btn_p{all:initial;font-size:12px!important;position:fixed;bottom:20%;right:max(0px, (1em - 100vw + 100%));z-index:1000}
+.GM_btn_c{display:inline-block;block-size:auto!important;border:.1em solid grey;border-radius:.3em;padding:.3em;position:relative;
 writing-mode:vertical-rl;letter-spacing:.3em;cursor:pointer;user-select:none;}
 #GM_btn_2{right:-.1em}`); //边框重叠
 
@@ -51,8 +67,14 @@ const scroll_to = (height) => {
   target.scrollTo({ top: { top: 0, bottom: target.scrollHeight }[height], behavior: 'smooth' });
 }
 
-const btn_p = GM_addElement(document.body, 'div', { id: 'GM_btn_p', lang: 'zh-Hans-CN' });
-GM_addElement(btn_p, 'div', { id: 'GM_btn_2', className: 'GM_btn_c', textContent: '去往底部', role: 'button' })
-  .onclick = () => scroll_to('bottom');
-GM_addElement(btn_p, 'div', { className: 'GM_btn_c', textContent: '回到顶部', role: 'button' })
-  .onclick = () => scroll_to('top');
+const btn_p = addElement(document.body, 'div', { id: 'GM_btn_p', lang: 'zh-Hans-CN' });
+
+addElement(btn_p, 'div', {
+  className: 'GM_btn_c', textContent: '去往底部', role: 'button', id: 'GM_btn_2',
+  onclick: () => scroll_to('bottom')
+});
+
+addElement(btn_p, 'div', {
+  className: 'GM_btn_c', textContent: '回到顶部', role: 'button',
+  onclick: () => scroll_to('top')
+});
