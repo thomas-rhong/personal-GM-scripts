@@ -101,8 +101,11 @@ function* ranges_g(selection) {
 }
 
 function* walk_g(range) {
+    const root = range.commonAncestorContainer;
+    // 选中同一个节点的文本时，公共节点无法遍历
+    if (root.nodeType === Node.TEXT_NODE) { yield root; return; }
     const walker = document.createTreeWalker(
-        range.commonAncestorContainer,
+        root,
         NodeFilter.SHOW_TEXT,
         node => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
     );
